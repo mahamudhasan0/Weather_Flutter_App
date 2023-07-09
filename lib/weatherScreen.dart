@@ -3,13 +3,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class WeatherScreenApp extends StatefulWidget {
-  const WeatherScreenApp({super.key});
+  const WeatherScreenApp({Key? key}) : super(key: key);
 
   @override
-  _WeatherScreenApp createState() => _WeatherScreenApp();
+  _WeatherScreenAppState createState() => _WeatherScreenAppState();
 }
 
-class _WeatherScreenApp extends State<WeatherScreenApp> {
+class _WeatherScreenAppState extends State<WeatherScreenApp> {
   String locationName = '';
   String temperature = '';
   String minTemperature = '';
@@ -17,6 +17,7 @@ class _WeatherScreenApp extends State<WeatherScreenApp> {
   String weatherDescription = '';
   String weatherIcon = '';
   bool isLoading = true;
+  bool isError = false;
 
   @override
   void initState() {
@@ -45,12 +46,14 @@ class _WeatherScreenApp extends State<WeatherScreenApp> {
         });
       } else {
         setState(() {
-          isLoading = true;
+          isLoading = false;
+          isError = true;
         });
       }
     } catch (e) {
       setState(() {
         isLoading = false;
+        isError = true;
       });
     }
   }
@@ -59,7 +62,12 @@ class _WeatherScreenApp extends State<WeatherScreenApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Weather App'),
+        title: const Text(
+          'Weather App',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+          ),
+        ),
         centerTitle: true,
       ),
       body: Container(
@@ -77,62 +85,80 @@ class _WeatherScreenApp extends State<WeatherScreenApp> {
             ? const Center(
                 child: CircularProgressIndicator(),
               )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    locationName,
-                    style: const TextStyle(
-                      fontSize: 30.0,
-                      color: Colors.greenAccent,
-                      fontWeight: FontWeight.bold,
+            : isError
+                ? const Center(
+                    child: Text(
+                      'Error fetching the weather data',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  Row(
+                  )
+                : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        height: 150.0,
-                        width: 150.0,
-                        child: Image.network(
-                          getWeatherImageUrl(weatherIcon),
-                          fit: BoxFit.contain,
+                      Text(
+                        locationName,
+                        style: const TextStyle(
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.greenAccent,
                         ),
                       ),
-                      Text(
-                        ' $temperature°C',
-                        style: const TextStyle(
-                            fontSize: 24,
-                            color: Colors.yellowAccent,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(width: 20.0),
-                      Column(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            'min: $minTemperature°C',
-                            style: const TextStyle(
-                                fontSize: 15, color: Colors.amberAccent),
+                          SizedBox(
+                            height: 150.0,
+                            width: 150.0,
+                            child: Image.network(
+                              getWeatherImageUrl(weatherIcon),
+                              fit: BoxFit.contain,
+                            ),
                           ),
                           Text(
-                            'max: $maxTemperature°C',
+                            ' $temperature°C',
                             style: const TextStyle(
-                                fontSize: 15, color: Colors.amberAccent),
+                              fontSize: 24,
+                              color: Colors.yellowAccent,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                          const SizedBox(width: 20.0),
+                          Column(
+                            children: [
+                              Text(
+                                'min: $minTemperature°C',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.amberAccent,
+                                ),
+                              ),
+                              Text(
+                                'max: $maxTemperature°C',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.amberAccent,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
+                      const SizedBox(height: 10.0),
+                      Text(
+                        weatherDescription,
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepOrangeAccent,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 10.0),
-                  Text(
-                    weatherDescription,
-                    style: const TextStyle(
-                        fontSize: 28,
-                        color: Colors.white54,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
       ),
     );
   }
